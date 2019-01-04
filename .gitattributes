@@ -1,2 +1,2 @@
-* eol=lf
-*.png -eol -text binary
+.gitattributes eol=lf
+*.html eol=lf
