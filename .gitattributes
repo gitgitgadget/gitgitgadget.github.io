@@ -1,0 +1,4 @@
+.gitattributes eol=lf
+*.html eol=lf
+*.svg eol=lf
+*.png binary
