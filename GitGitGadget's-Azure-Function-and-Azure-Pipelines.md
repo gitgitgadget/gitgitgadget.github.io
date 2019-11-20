@@ -32,7 +32,7 @@ Depending how the Azure Pipeline was triggered, it calls [`misc-helper.ts`](http
    npm install &&
    npm run build ||
    exit 1
-  ```
+   ```
 3. Obtain GitHub Token:
    ```sh
    GIT_CONFIG_PARAMETERS="$GIT_CONFIG_PARAMETERS $EXTRA_CONFIG"
