@@ -8,9 +8,62 @@ Apart from validating that the payload really originated from GitHub, the Azure 
 
 The `push` event (and also the `pull_request` event) is not actually handled by the Azure Function. It is handled via the Azure Pipeline being configured as "Pull request validation". That also allows it to be shown in the Checks tab of the PR.
 
-You can see the difference on https://dev.azure.com/gitgitgadget/git/_build?definitionId=3: the `push`-triggered builds are labeled as "Pull request build", and the `issue_comment` ones as "Manual build" (because they are triggered using a Personal Access Token, also known as "PAT").
+You can see the difference on [the summary page of the GitGitGadget PR Handler pipeline](https://dev.azure.com/gitgitgadget/git/_build?definitionId=3): the `push`-triggered builds are labeled as "Pull request build", and the `issue_comment` ones as "Manual build" (because they are triggered using a Personal Access Token, also known as "PAT").
 
-Depending how the Azure Pipeline was triggered, it calls [`misc-helper.ts`](https://github.com/gitgitgadget/gitgitgadget/blob/master/script/misc-helper.ts) with the `handle-pr-comment` or with the `handle-pr-push` parameter, respectively.
+Depending how the Azure Pipeline was triggered, it calls [`misc-helper.ts`](https://github.com/gitgitgadget/gitgitgadget/blob/master/script/misc-helper.ts) with the `handle-pr-comment` or with the `handle-pr-push` parameter, respectively. More precisely, the pipeline has 4 steps:
+
+1. Use Node 10.x
+2. Pull GitGitGadget, run npm, essentially:
+   ```sh
+   test -d .git || git init || exit 1
+
+   git rev-parse HEAD >.git/PRE_FETCH_HEAD &&
+   git fetch https://github.com/gitgitgadget/gitgitgadget master ||
+   exit 1
+
+   [... commented-out dirty tricks to use PRs' patches early ...]
+   git reset --hard FETCH_HEAD ||
+   exit 1
+
+   # If nothing was pulled, we already built it
+   test "$(git rev-parse HEAD)" != "$(cat .git/PRE_FETCH_HEAD)" ||
+   exit 0
+
+   npm install &&
+   npm run build ||
+   exit 1
+  ```
+3. Obtain GitHub Token:
+   ```sh
+   GIT_CONFIG_PARAMETERS="$GIT_CONFIG_PARAMETERS $EXTRA_CONFIG"
+   node build/script/misc-helper.js set-app-token &&
+   git config gitgitgadget.publishRemote \
+       https://x-access-token:$(git config gitgitgadget.githubToken)@github.com/gitgitgadget/git
+   ```
+   (The `EXTRA_CONFIG` is necessary because it contains a value that is configured via a secret pipeline variable.)
+4. Handle PR (Comment or Push):
+   ```sh
+   GIT_CONFIG_PARAMETERS="$GIT_CONFIG_PARAMETERS $EXTRA_CONFIG"
+   set -x
+   if test "$(pr.comment.id)" -lt 0
+   then
+       case "$BUILD_SOURCEBRANCH" in
+       refs/pull/[1-9]*/head|refs/pull/[1-9]*/merge)
+           branchname=${BUILD_SOURCEBRANCH#refs/pull/}
+           prnumber=${branchname%/*}
+           ;;
+       *) echo "Invalid source branch: $BUILD_SOURCEBRANCH">&2; exit 1;;
+       esac
+       node build/script/misc-helper.js handle-pr-push "$prnumber"
+   else
+       node build/script/misc-helper.js handle-pr-comment "$(pr.comment.id)"
+   fi
+   ```
+   (The `pr.comment.id` pipeline variable is set when queuing the build via the Azure Function that is registered as a webhook, that's how we can discern between this mode vs push.)
+
+The pipeline variable `GIT_CONFIG_PARAMETERS` (which is pre-set as an environment variable in the scripts, interpreted by Git in the same way as `git -c <key>=<value>` would be) is defined as `'user.name=GitGitGadget' 'user.email=gitgitgadget@gmail.com' 'gitgitgadget.workDir=$(Agent.HomeDirectory)/../git-worktree'`, i.e. it configures GitGitGadget as committer and it asks GitGitGadget to fetch the commits and notes to the directory`git-worktree/` that is located next to the Azure Pipeline build agent's own directory, which assumes that the agent is running in a suitable VM and its files are installed into the home directory of the account running the agent.
+
+Ideally, this definition (even if it is very small compared to other pipeline definitions I maintain) would be tracked in a Git repository, but since we want this to be a CI build (so that it neatly shows those Checks in the PR page), the pipeline is already associated with gitgitgadget/git (even if the pipeline is configured not to "sync the source", i.e. it does not check out the code pushed to the PR), and we cannot simply add GitGitGadget's Azure Pipelines' definitions to `master` because that is mirrored verbatim from git/git.
 
 # Keeping https://github.com/gitgitgadget/git up to date
 
