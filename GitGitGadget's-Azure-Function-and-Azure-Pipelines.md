@@ -65,6 +65,14 @@ The pipeline variable `GIT_CONFIG_PARAMETERS` (which is pre-set as an environmen
 
 Ideally, this definition (even if it is very small compared to other pipeline definitions I maintain) would be tracked in a Git repository, but since we want this to be a CI build (so that it neatly shows those Checks in the PR page), the pipeline is already associated with gitgitgadget/git (even if the pipeline is configured not to "sync the source", i.e. it does not check out the code pushed to the PR), and we cannot simply add GitGitGadget's Azure Pipelines' definitions to `master` because that is mirrored verbatim from git/git.
 
+# Mirroring replies from the Git mailing list to GitGitGadget's PRs
+
+This is performed by the [Mirror Git List to GitGitGadget's PRs](https://dev.azure.com/gitgitgadget/git/_build?definitionId=5) pipeline. Its tasks look very similar to the ones of the GitGitGadget PR Handler pipeline described [above](#how-does-gitgitgadget-process-user-comments-on-prs), but it is triggered by updates to the `master` branch of the Git mailing list archive at https://public-inbox.org/git and calls `misc-helper.js handle-new-mails`instead of the `handle-pr-comment`/`handle-pr-push` commands.
+
+# Update PR labels and mentioning when/where the patches were integrated
+
+The PRs labels are updated, and the comments that document how the corresponding branch is called and when the patches were integrated and into which branch(es), and the PRs are closed when the patches hit `master` and/or `maint` by the [Update GitGitGadget's PRs](https://dev.azure.com/gitgitgadget/git/_build/index?definitionId=2) pipeline. Its tasks look very similar to the GitGitGadget PR Handler pipeline described [above](#how-does-gitgitgadget-process-user-comments-on-prs), but it is triggered by updates to the branches `pu`, `next`, `master` and `maint` at https://github.com/git/git, and it calls `misc-helper.ts update-open-prs`, `misc-helper.ts update-commit-mappings` and `misc-helper.ts handle-open-prs` instead of the `handle-pr-comment`/`handle-pr-push` commands.
+
 # Keeping https://github.com/gitgitgadget/git up to date
 
 The repository gitgitgadget/git is kept up to date by two Azure Pipelines: [Synchronize gitster.git to GitGitGadget](https://dev.azure.com/gitgitgadget/git/_build?definitionId=8) and [Synchronize git.git to GitGitGadget](https://dev.azure.com/gitgitgadget/git/_build?definitionId=7).
