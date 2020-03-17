@@ -27,6 +27,51 @@
 			tiny {
 				font-size: 70%;
 			}
+			.tg {
+				border-collapse: collapse;
+				border-spacing: 0;
+				margin: 0px auto;
+			}
+			.tg td {
+				padding: 10px 5px;
+				border-style: solid;
+				border-width: 1px;
+				overflow: hidden;
+				word-break: normal;
+				border-color: black;
+			}
+			.tg th {
+				font-weight: bold;
+				padding: 10px 5px;
+				border-style: solid;
+				border-width: 1px;
+				overflow: hidden;
+				word-break: normal;
+				border-color: black;
+			}
+			.tg .tg-baqh {
+				width: 15%;
+				text-align: center;
+				vertical-align: center;
+			}
+			.tg .tg-0lax {
+				width: 70%;
+				text-align: left;
+				vertical-align: center;
+			}
+			@media screen and (max-width: 767px) {
+				.tg {
+					width: auto !important;
+				}
+				.tg col {
+					width: auto !important;
+				}
+				.tg-wrap {
+					overflow-x: auto;
+					-webkit-overflow-scrolling: touch;
+					margin: auto 0px;
+				}
+			}
 		</style>
 	</head>
 	<body>
@@ -81,6 +126,66 @@
 				In the case that a reviewer asks for changes, you should respond either acknowledging that you will make those changes or making an argument against the requested changes.
 				If your patches need to be revised, please use <tt>git rebase -i</tt> to do that, then force-push, then update the description of the Pull Request by adding a summary of the changes you made, and then issue another <tt>/submit</tt>.
 			</p>
+		</div>
+
+		<h2>Should I use GitGitGadget on GitGitGadget's Git fork or on Git's GitHub mirror?</h2>
+		<div class="block">
+			<p>
+				GitGitGadget works on both GitGitGadget's Git fork (<a href="https://github.com/gitgitgadget/git">https://github.com/gitgitgadget/git</a>) and Git's GitHub mirror (<a href="https://github.com/gitgitgadget/git">https://github.com/git/git</a>).
+				However, some functionality is only available when opening a PR on GitGitGadget's Git fork.
+			</p>
+			<div class="tg-wrap"><table class="tg">
+				<tr>
+					<th class="tg-0lax">Features</th>
+					<th class="tg-baqh"><a href="https://github.com/gitgitgadget/git">gitgitgadget/git</a></th>
+					<th class="tg-baqh"><a href="https://github.com/git/git">git/git</a></th>
+				</tr>
+				<tr>
+					<td class="tg-0lax">Mirror emails answers as PR comments</td>
+					<td class="tg-baqh">✅</td>
+					<td class="tg-baqh">✅</td>
+				</tr>
+				<tr>
+					<td class="tg-0lax">Mirror PR comments as emails to the list</td>
+					<td class="tg-baqh">❌</td>
+					<td class="tg-baqh">❌</td>
+				</tr>
+				<tr>
+					<td class="tg-0lax">Build Git and run the test suite on Linux, macOS, Windows and FreeBSD</td>
+					<td class="tg-baqh">✅</td>
+					<td class="tg-baqh">✅</td>
+				</tr>
+				<tr>
+					<td class="tg-0lax">Comment on the PR when a topic branch is created in the <a href="https://github.com/gitster/git/branches">maintainer's fork</a></td>
+					<td class="tg-baqh">✅</td>
+					<td class="tg-baqh">✅</td>
+				</tr>
+				<tr>
+					<td class="tg-0lax">Comment on the PR when the series is integrated into <tt>pu</tt>, <tt>next</tt>, <tt>master</tt> and <tt>maint</tt></td>
+					<td class="tg-baqh">✅</td>
+					<td class="tg-baqh">✅</td>
+				</tr>
+				<tr>
+					<td class="tg-0lax">Add a label to the PR when the series is integrated into <tt>pu</tt>, <tt>next</tt>, <tt>master</tt> and <tt>maint</tt></td>
+					<td class="tg-baqh">✅</td>
+					<td class="tg-baqh">✅</td>
+				</tr>
+				<tr>
+					<td class="tg-0lax">Target <tt>pu</tt>, <tt>next</tt>, <tt>master</tt> and <tt>maint</tt></td>
+					<td class="tg-baqh">✅</td>
+					<td class="tg-baqh">✅</td>
+				</tr>
+				<tr>
+					<td class="tg-0lax">Target any topic branch in the maintainer's fork, as well as <tt>git-gui/master</tt></td>
+					<td class="tg-baqh">✅</td>
+					<td class="tg-baqh">❌</td>
+				</tr>
+				<tr>
+					<td class="tg-0lax">Get a direct link between the last commit of the series and the corresponding commit in the "most upstream" integration branch as a GitHub check</td>
+					<td class="tg-baqh">✅</td>
+					<td class="tg-baqh">❌</td>
+				</tr>
+			</table></div>
 		</div>
 
 		<h2>But... what <i>is</i> GitGitGadget?</h2>
