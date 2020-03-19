@@ -108,11 +108,11 @@
 				You might also want to read the <a href="https://git-scm.com/docs/gitworkflows">gitworkflows</a> manual page to understand how your contributions will be integrated in Git's repository, as well as <a href="https://github.com/git/git/blob/todo/MaintNotes">this note from Git's maintainer</a>.
 			</p><p>
 				The first time you use GitGitGadget, you need to be added to the list of users with permission to use GitGitGadget (this is a <i>very</i> simple anti-spam measure).
-				Any user who is already on that list can do that, by adding a comment to that Pull Request that says <tt>/allow &lt;username&gt;</name></tt> (with your GitHub login name).
+				Any user who is already on that list can do that, by adding a comment to that Pull Request that says <code>/allow &lt;username&gt;</name></code> (with your GitHub login name).
 			</p><p>
 				The Pull Request will trigger a few Checks, most importantly one that will build Git and run the test suite on the main platforms, to make sure that everything works as advertised. 
 			</p><p>
-				Once everything is ready to go, add a comment to that Pull Request saying <tt>/submit</tt>.
+				Once everything is ready to go, add a comment to that Pull Request saying <code>/submit</code>.
 				This will trigger GitGitGadget (you can see the progress via the Check called "GitGitGadget PR Handler"): it will wrap your Pull Request into a nice bundle of mails in the format expected on the Git mailing list.
 			</p>
 		</div>
@@ -124,7 +124,7 @@
 				The Git developer community is globally distributed, so please wait a day or two for reviewer comments to trickle in before sending another iteration of your patch series (if needed).
 			</p><p>
 				In the case that a reviewer asks for changes, you should respond either acknowledging that you will make those changes or making an argument against the requested changes.
-				If your patches need to be revised, please use <tt>git rebase -i</tt> to do that, then force-push, then update the description of the Pull Request by adding a summary of the changes you made, and then issue another <tt>/submit</tt>.
+				If your patches need to be revised, please use <code>git rebase -i</code> to do that, then force-push, then update the description of the Pull Request by adding a summary of the changes you made, and then issue another <code>/submit</code>.
 			</p>
 		</div>
 
@@ -161,22 +161,22 @@
 					<td class="tg-baqh">✅</td>
 				</tr>
 				<tr>
-					<td class="tg-0lax">Comment on the PR when the series is integrated into <tt>pu</tt>, <tt>next</tt>, <tt>master</tt> and <tt>maint</tt></td>
+					<td class="tg-0lax">Comment on the PR when the series is integrated into <code>pu</code>, <code>next</code>, <code>master</code> and <code>maint</code></td>
 					<td class="tg-baqh">✅</td>
 					<td class="tg-baqh">✅</td>
 				</tr>
 				<tr>
-					<td class="tg-0lax">Add a label to the PR when the series is integrated into <tt>pu</tt>, <tt>next</tt>, <tt>master</tt> and <tt>maint</tt></td>
+					<td class="tg-0lax">Add a label to the PR when the series is integrated into <code>pu</code>, <code>next</code>, <code>master</code> and <code>maint</code></td>
 					<td class="tg-baqh">✅</td>
 					<td class="tg-baqh">✅</td>
 				</tr>
 				<tr>
-					<td class="tg-0lax">Target <tt>pu</tt>, <tt>next</tt>, <tt>master</tt> and <tt>maint</tt></td>
+					<td class="tg-0lax">Target <code>pu</code>, <code>next</code>, <code>master</code> and <code>maint</code></td>
 					<td class="tg-baqh">✅</td>
 					<td class="tg-baqh">✅</td>
 				</tr>
 				<tr>
-					<td class="tg-0lax">Target any topic branch in the maintainer's fork, as well as <tt>git-gui/master</tt></td>
+					<td class="tg-0lax">Target any topic branch in the maintainer's fork, as well as <code>git-gui/master</code></td>
 					<td class="tg-baqh">✅</td>
 					<td class="tg-baqh">❌</td>
 				</tr>
