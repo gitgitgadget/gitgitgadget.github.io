@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>GitGitGadget - contributing git.git patches via GitHub PRs</title>
+    <link rel="stylesheet" href="main.css">
+  </head>
+  <body>
+    <div class="banner">
+      <table style="width: 100%">
+        <tbody>
+	  <tr>
+	    <td>
+              <img src="images/gitgitgadget-explanation.png" alt="An arrow from git logo to an envelop with git logo. The arrow is labelled by famous Inspector Gadget hat." style="height: 150px;">
+	    </td>
+            <td>
+              <big>GitGitGadget</big>
+              <br />
+              Contributing git.git patches via GitHub PRs
+              <br />
+              <small>... one iteration at a time...</small>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="block">
+      <p>You most likely found this page because you contributed patches to the Git mailing list via GitGitGadget, and a mail from the Git mailing list was mirrored to your Pull Request, and now you need to answer.</p>
+<p>The easiest method (unless you are subscribed to the Git mailing list and saw the mail already) is to import the so-called &quot;mbox&quot; file. You can get that by following the &quot;On the Git mailing list&quot; link on the top of the mirrored mail and then downloading the &quot;raw&quot; version (you can do the same by appending <code>/raw</code> to the link).</p>
+<p>This file now needs to be imported into your regular mail program.</p>
+<h2 id="how-to-import-an-mbox-file">How to import an <code>mbox</code> file</h2>
+<h3 id="if-your-mail-program-stores-mails-in-maildir-format-thunderbird-mutt-alpine-etc">If your mail program stores mails in &quot;maildir&quot; format (Thunderbird, Mutt, Alpine, etc)</h3>
+<p>Simply copy the file to the <code>new</code> subfolder in your mailer&#39;s maildir folder.</p>
+<h3 id="if-you-use-webmail-gmail-and-friends">If you use webmail (GMail and friends)</h3>
+<p>You can use the command-line tool <code>curl</code> (provided that your version has IMAP support):</p>
+<pre><code class="language-sh">curl -g --user &quot;&lt;email&gt;:&lt;password&gt;&quot; --url &quot;imaps://imap.gmail.com/INBOX&quot; -T /path/to/raw.txt
+</code></pre>
+
+    </div>
+  </body>
+</html>
