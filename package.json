@@ -1,0 +1,22 @@
+{
+  "name": "gitgitgadget.github.io",
+  "version": "0.0.0",
+  "description": "GitGitGadget's home page",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gitgitgadget/gitgitgadget.github.io.git"
+  },
+  "keywords": [
+    "git",
+    "pullrequest"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gitgitgadget/gitgitgadget.github.io/issues"
+  },
+  "homepage": "https://github.com/gitgitgadget/gitgitgadget.github.io#readme"
+}
