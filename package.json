@@ -1,0 +1,26 @@
+{
+  "name": "gitgitgadget.github.io",
+  "version": "0.0.0",
+  "description": "GitGitGadget's home page",
+  "scripts": {
+    "grunt": "grunt"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gitgitgadget/gitgitgadget.github.io.git"
+  },
+  "keywords": [
+    "git",
+    "pullrequest"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gitgitgadget/gitgitgadget.github.io/issues"
+  },
+  "homepage": "https://github.com/gitgitgadget/gitgitgadget.github.io#readme",
+  "dependencies": {
+    "grunt": "^1.6.1",
+    "grunt-md2html": "^0.6.1"
+  }
+}

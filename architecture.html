@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>GitGitGadget - contributing git.git patches via GitHub PRs</title>
+    <link rel="stylesheet" href="main.css">
+  </head>
+  <body>
+    <div class="banner">
+      <table style="width: 100%">
+        <tbody>
+	  <tr>
+	    <td>
+              <img src="images/gitgitgadget-explanation.png" alt="An arrow from git logo to an envelop with git logo. The arrow is labelled by famous Inspector Gadget hat." style="height: 150px;">
+	    </td>
+            <td>
+              <big>GitGitGadget</big>
+              <br />
+              Contributing git.git patches via GitHub PRs
+              <br />
+              <small>... one iteration at a time...</small>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="block">
+      <h1 id="how-does-gitgitgadget-process-user-comments-on-prs">How does GitGitGadget process user comments on PRs?</h1>
+<p>GitGitGadget is implemented as a GitHub App (with the very imaginative name <a href="https://github.com/apps/gitgitgadget">&quot;GitGitGadget&quot;</a>), which means that a webhook is called on certain events, such as new PR comments on PRs (e.g. <code>issue_comment</code>).</p>
+<p>In GitGitGadget&#39;s case, this webhook is implemented as an Azure Function: <a href="https://github.com/gitgitgadget/gitgitgadget/tree/master/azure-function">https://github.com/gitgitgadget/gitgitgadget/tree/master/azure-function</a></p>
+<p>Apart from validating that the payload really originated from GitHub, the Azure Function performs a rudimentary check whether the comment (if it was triggered by a comment) contains a command that GitGitGadget should act on, and depending on that check triggers the Azure Pipeline <a href="https://dev.azure.com/gitgitgadget/git/_build?definitionId=3">GitGitGadget PR Handler</a>.</p>
+<p>The <code>push</code> event (and also the <code>pull_request</code> event) is not actually handled by the Azure Function. It is handled via the Azure Pipeline being configured as &quot;Pull request validation&quot;. That also allows it to be shown in the Checks tab of the PR.</p>
+<p>You can see the difference on <a href="https://dev.azure.com/gitgitgadget/git/_build?definitionId=3">the summary page of the GitGitGadget PR Handler pipeline</a>: the <code>push</code>-triggered builds are labeled as &quot;Pull request build&quot;, and the <code>issue_comment</code> ones as &quot;Manual build&quot; (because they are triggered using a Personal Access Token, also known as &quot;PAT&quot;).</p>
+<p>Depending how the Azure Pipeline was triggered, it calls <a href="https://github.com/gitgitgadget/gitgitgadget/blob/master/script/misc-helper.ts"><code>misc-helper.ts</code></a> with the <code>handle-pr-comment</code> or with the <code>handle-pr-push</code> parameter, respectively. More precisely, the pipeline has 4 steps:</p>
+<ol>
+<li>Use Node 10.x</li>
+<li>Pull GitGitGadget, run npm, essentially:<pre><code class="language-sh">test -d .git || git init || exit 1
+
+git rev-parse HEAD &gt;.git/PRE_FETCH_HEAD &amp;&amp;
+git fetch https://github.com/gitgitgadget/gitgitgadget master ||
+exit 1
+
+[... commented-out dirty tricks to use PRs&#39; patches early ...]
+git reset --hard FETCH_HEAD ||
+exit 1
+
+# If nothing was pulled, we already built it
+test &quot;$(git rev-parse HEAD)&quot; != &quot;$(cat .git/PRE_FETCH_HEAD)&quot; ||
+exit 0
+
+npm install &amp;&amp;
+npm run build ||
+exit 1
+</code></pre>
+</li>
+<li>Obtain GitHub Token:<pre><code class="language-sh">GIT_CONFIG_PARAMETERS=&quot;$GIT_CONFIG_PARAMETERS $EXTRA_CONFIG&quot;
+node build/script/misc-helper.js set-app-token &amp;&amp;
+git config gitgitgadget.publishRemote \
+    https://x-access-token:$(git config gitgitgadget.githubToken)@github.com/gitgitgadget/git
+</code></pre>
+(The <code>EXTRA_CONFIG</code> is necessary because it contains a value that is configured via a secret pipeline variable.)</li>
+<li>Handle PR (Comment or Push):<pre><code class="language-sh">GIT_CONFIG_PARAMETERS=&quot;$GIT_CONFIG_PARAMETERS $EXTRA_CONFIG&quot;
+set -x
+if test &quot;$(pr.comment.id)&quot; -lt 0
+then
+    case &quot;$BUILD_SOURCEBRANCH&quot; in
+    refs/pull/[1-9]*/head|refs/pull/[1-9]*/merge)
+        branchname=${BUILD_SOURCEBRANCH#refs/pull/}
+        prnumber=${branchname%/*}
+        ;;
+    *) echo &quot;Invalid source branch: $BUILD_SOURCEBRANCH&quot;&gt;&amp;2; exit 1;;
+    esac
+    node build/script/misc-helper.js handle-pr-push &quot;$prnumber&quot;
+else
+    node build/script/misc-helper.js handle-pr-comment &quot;$(pr.comment.id)&quot;
+fi
+</code></pre>
+(The <code>pr.comment.id</code> pipeline variable is set when queuing the build via the Azure Function that is registered as a webhook, that&#39;s how we can discern between this mode vs push.)</li>
+</ol>
+<p>The pipeline variable <code>GIT_CONFIG_PARAMETERS</code> (which is pre-set as an environment variable in the scripts, interpreted by Git in the same way as <code>git -c &lt;key&gt;=&lt;value&gt;</code> would be) is defined as <code>&#39;user.name=GitGitGadget&#39; &#39;user.email=gitgitgadget@gmail.com&#39; &#39;gitgitgadget.workDir=$(Agent.HomeDirectory)/../git-worktree&#39;</code>, i.e. it configures GitGitGadget as committer and it asks GitGitGadget to fetch the commits and notes to the directory<code>git-worktree/</code> that is located next to the Azure Pipeline build agent&#39;s own directory, which assumes that the agent is running in a suitable VM and its files are installed into the home directory of the account running the agent.</p>
+<p>Ideally, this definition (even if it is very small compared to other pipeline definitions I maintain) would be tracked in a Git repository, but since we want this to be a CI build (so that it neatly shows those Checks in the PR page), the pipeline is already associated with gitgitgadget/git (even if the pipeline is configured not to &quot;sync the source&quot;, i.e. it does not check out the code pushed to the PR), and we cannot simply add GitGitGadget&#39;s Azure Pipelines&#39; definitions to <code>master</code> because that is mirrored verbatim from git/git.</p>
+<h1 id="mirroring-replies-from-the-git-mailing-list-to-gitgitgadgets-prs">Mirroring replies from the Git mailing list to GitGitGadget&#39;s PRs</h1>
+<p>This is performed by the <a href="https://dev.azure.com/gitgitgadget/git/_build?definitionId=5">Mirror Git List to GitGitGadget&#39;s PRs</a> pipeline. Its tasks look very similar to the ones of the GitGitGadget PR Handler pipeline described <a href="#how-does-gitgitgadget-process-user-comments-on-prs">above</a>, but it is triggered by updates to the <code>master</code> branch of the Git mailing list archive at <a href="https://public-inbox.org/git">https://public-inbox.org/git</a> and calls <code>misc-helper.js handle-new-mails</code>instead of the <code>handle-pr-comment</code>/<code>handle-pr-push</code> commands.</p>
+<h1 id="update-pr-labels-and-mentioning-whenwhere-the-patches-were-integrated">Update PR labels and mentioning when/where the patches were integrated</h1>
+<p>The PRs labels are updated, and the comments that document how the corresponding branch is called and when the patches were integrated and into which branch(es), and the PRs are closed when the patches hit <code>master</code> and/or <code>maint</code> by the <a href="https://dev.azure.com/gitgitgadget/git/_build/index?definitionId=2">Update GitGitGadget&#39;s PRs</a> pipeline. Its tasks look very similar to the GitGitGadget PR Handler pipeline described <a href="#how-does-gitgitgadget-process-user-comments-on-prs">above</a>, but it is triggered by updates to the branches <code>pu</code>, <code>next</code>, <code>master</code> and <code>maint</code> at <a href="https://github.com/git/git">https://github.com/git/git</a>, and it calls <code>misc-helper.ts update-open-prs</code>, <code>misc-helper.ts update-commit-mappings</code> and <code>misc-helper.ts handle-open-prs</code> instead of the <code>handle-pr-comment</code>/<code>handle-pr-push</code> commands.</p>
+<h1 id="keeping-httpsgithubcomgitgitgadgetgit-up-to-date">Keeping <a href="https://github.com/gitgitgadget/git">https://github.com/gitgitgadget/git</a> up to date</h1>
+<p>The repository gitgitgadget/git is kept up to date by two Azure Pipelines: <a href="https://dev.azure.com/gitgitgadget/git/_build?definitionId=8">Synchronize gitster.git to GitGitGadget</a> and <a href="https://dev.azure.com/gitgitgadget/git/_build?definitionId=7">Synchronize git.git to GitGitGadget</a>.</p>
+<h2 id="why-synchronize-both-gitgit-and-gitstergit">Why synchronize both git/git <em>and</em> gitster/git?</h2>
+<h3 id="background">Background</h3>
+<p>The existence of the <code>git/git</code> -&gt; <code>gitgitgadget/git</code> pipeline is probably obvious.</p>
+<p>The <code>gitster/git</code> repository contains the individual branches for code contributions, and the first reason why the corresponding pipeline was added is that <code>pu</code> had test failures all the time without any actionable information: it has been always unclear <em>which</em> of those patch series that made it into <code>pu</code> was responsible for the test failures. Now with the individual branches being mirrored into <code>gitgitgadget/git</code>, and obviously triggering <a href="https://dev.azure.com/gitgitgadget/git/_build?definitionId=4">CI builds</a>, it is a lot easier to find the culprits.</p>
+<p>Of course, from time to time the <code>pu</code> failures are caused by unfortunate interactions of separate patch series&#39; changes, in which case the CI builds of the individual branches may very well succeed but <code>pu</code> still causes failures, which is a very useful piece of information in and of itself.</p>
+<p>A secondary benefit of mirroring the <code>gitster/git</code> branches is that PRs at <code>gitgitgadget/git</code> can target more fine-grained base commits. I use this a lot, e.g. in my six &quot;built-in add -i/-p&quot; patch series which build on top of each other.</p>
+<p>While the pipeline that synchronizes with <code>gitster/git</code> is triggered by all updates to <code>refs/heads/*</code>, for technical reasons polling every 180 seconds, i.e. every three minutes, the pipeline that synchronizes with <code>git/git</code> is triggered immediately. </p>
+<h3 id="what-do-the-pipelines-do-exactly">What do the pipelines do, exactly?</h3>
+<p>The pipeline that mirrors gitster/git into gitgitgadget/git (the pipeline names cannot contain slashes, that&#39;s why the <code>/</code> was replaced by a <code>.</code>) has two tasks:</p>
+<ol>
+<li>Synchronize branch:<pre><code class="language-bash">case &quot;$(Build.SourceBranch)&quot; in
+refs/heads/*)
+    refspec=&quot;+HEAD:$(Build.SourceBranch)&quot;
+    ;;
+refs/tags/*)
+    refspec=&quot;$(Build.SourceBranch)&quot;
+    ;;
+*)
+    echo &quot;Cannot handle &#39;$(Build.SourceBranch)&#39;&quot; &gt;&amp;2
+    exit 1
+    ;;
+esac
+
+git -c  http.&quot;https://github.com/gitgitgadget/git&quot;.extraheader=&quot;Authorization: Basic $(gitgitgadget.push.token.base64)&quot; \
+    push https://github.com/gitgitgadget/git &quot;$refspec&quot;
+</code></pre>
+</li>
+<li>Synchronize tags (if necessary):<pre><code class="language-bash">die () {
+    echo &quot;$*&quot; &gt;&amp;2
+    exit 1
+}
+
+for d in git gitgitgadget
+do
+    git ls-remote --tags https://github.com/$d/git | grep -v &#39;\^{}$&#39; | sort &gt;tags.$d ||
+    die &quot;Could not enumerate tags in $d&quot;
+done
+
+refspec=&quot;$(comm -23 tags.git tags.gitgitgadget | tr &#39;\t&#39; :)&quot; ||
+die &quot;Could figure out missing tags&quot;
+
+if test -z &quot;$refspec&quot;
+then
+    echo &quot;##vso[task.complete result=Skipped]No tags to synchronize!&quot;
+else
+    git -c  http.&quot;https://github.com/gitgitgadget/git&quot;.extraheader=&quot;Authorization: Basic $(gitgitgadget.push.token.base64)&quot; \
+        push https://github.com/gitgitgadget/git $refspec
+fi
+</code></pre>
+</li>
+</ol>
+<p>That second task is necessary because there is currently no way to trigger non-YAML Azure Pipelines from tag updates. Of course this means that new tags are only synchronized together with branch updates, but in practice that&#39;s okay because the Git maintainer always pushes out the tags with corresponding branches.</p>
+<p>This task mirrors tags from the git/git repository, even if the pipeline purports to mirror <code>gitster/git</code> to <code>gitgitgadget/git</code>; This is a deliberate decision, to make sure that we only mirror the &quot;official tags&quot; from the authoritative repository.</p>
+<p>The two pipelines are identical except for these aspects:</p>
+<ul>
+<li>The <code>gitster/git</code> repository contains substantially more branches. The only <code>git/git</code> branch that is missing from <code>gitster/git</code> is <code>todo</code>, which <a href="https://github.com/gitgitgadget/gitgitgadget/issues/152">we might parse at some stage to provided concise excerpts from the &quot;What&#39;s cooking&quot; mails</a>.</li>
+<li>For technical reasons, the <code>git/git</code> pipeline does not need to poll.</li>
+</ul>
+<h3 id="git-guis-branches">Git GUI&#39;s branches</h3>
+<p>As GitGitGadget can also be used to contribute Git GUI patches and patch series, there is also the <a href="https://dev.azure.com/gitgitgadget/git/_build?definitionId=10">Synchronize git-gui.git (branches only) to GitGitGadget</a> pipeline. It mirrors the branches of Pratyush Yadav&#39;s repository (i.e. the current Git GUI maintainer&#39;s authoritative repository) into the <code>git-gui/*</code> namespace on <code>gitgitgadget/git</code>.</p>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+name: Convert Markdown to HTML
+on: pull_request
+
+jobs:
+  md2html: # make sure build/ci work properly
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+      - run: npm ci
+      - run: npm run grunt
+      - name: check if commit & push is needed
+        id: check
+        run: |
+          git add -A \*.html &&
+          git diff-index --cached --exit-code HEAD -- ||
+          echo "need-to-commit=yes" >>$GITHUB_OUTPUT
+      - name: commit & push
+        if: steps.check.outputs.need-to-commit == 'yes'
+        run: |
+          git config user.name "${{github.actor}}" &&
+          git config user.email "${{github.actor}}@users.noreply.github.com" &&
+          git commit -m 'Convert Markdown to HTML' -- \*.html &&
+          git update-index --refresh &&
+          git diff-files --exit-code &&
+          git diff-index --cached --exit-code HEAD -- &&
+          git push
+
