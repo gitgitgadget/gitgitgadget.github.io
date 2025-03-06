@@ -15,5 +15,5 @@ Simply copy the file to the `new` subfolder in your mailer's maildir folder.
 You can use the command-line tool `curl` (provided that your version has IMAP support):
 
 ```sh
-curl -g --user "<email>:<password>" --url "imaps://imap.gmail.com/INBOX" -T /path/to/raw.txt
+curl -g --user "<email>" --url "imaps://imap.gmail.com/INBOX" -T /path/to/raw.txt
 ```

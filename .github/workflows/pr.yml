@@ -6,6 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,7 +20,7 @@ jobs:
           git add -A \*.html &&
           git diff-index --cached --exit-code HEAD -- ||
           echo "need-to-commit=yes" >>$GITHUB_OUTPUT
-      - name: commit & push
+      - name: commit
         if: steps.check.outputs.need-to-commit == 'yes'
         run: |
           git config user.name "${{github.actor}}" &&
@@ -28,5 +29,21 @@ jobs:
           git update-index --refresh &&
           git diff-files --exit-code &&
           git diff-index --cached --exit-code HEAD -- &&
-          git push
-
+          git bundle create git.bundle ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.head.ref }}
+      - name: commit
+        if: steps.check.outputs.need-to-commit == 'yes' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
+        run: git push
+      - name: publish bundle
+        id: bundle
+        if: steps.check.outputs.need-to-commit == 'yes' && github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle
+          path: git.bundle
+      - name: instructions how to fetch bundle
+        if: steps.check.outputs.need-to-commit == 'yes' && github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+        run: |
+          body='The HTML pages are out of date. Please download the `bundle` artifact from ${{ steps.bundle.outputs.artifact-url }}, extract the `git.bundle` file from it, then run `git pull /path/to/git.bundle ${{ github.event.pull_request.head.ref }}` and then push to the PR branch'
+          echo "::error::$body" >&2
+          echo "$body" >>$GITHUB_STEP_SUMMARY
+          exit 1
