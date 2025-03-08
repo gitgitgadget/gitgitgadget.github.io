@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>{{ .Title }}</title>
@@ -7,6 +8,8 @@
   <body>
     {{ partial "banner.html" . -}}
 
-    {{ .Content | replaceRE "(<h2 id=\"([^\"]+)\".+)(</h[1-9]+>)" `${1} <a href="#${2}">#</a> ${3}` | safeHTML }}
+    {{ block "main" . }}
+    {{ .Content }}
+    {{ end }}
   </body>
 </html>

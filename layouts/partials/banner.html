@@ -1,6 +1,27 @@
+{{- define "partials/logo.html" -}}
+<img src="images/gitgitgadget-explanation.png"  alt="An arrow from git logo to an envelop with git logo. The arrow is labelled by famous Inspector Gadget hat."/>
+{{- end -}}
+{{- define "partials/subtitle.html" -}}
+<big>GitGitGadget</big><br />
+Contributing git.git patches via GitHub PRs<br />
+<small>... one iteration at a time... </small>
+{{- end -}}
 <div class="banner">
-  <img src="images/gitgitgadget-explanation.png"  alt="An arrow from git logo to an envelop with git logo. The arrow is labelled by famous Inspector Gadget hat."/>
-  <big>GitGitGadget</big><br />
-  Contributing git.git patches via GitHub PRs<br />
-  <small>... one iteration at a time... </small>
-</div><hr />
+  {{- if eq .Kind "home" }}
+  {{ partial "logo.html" . }}
+  {{ partial "subtitle.html" . }}
+  {{- else }}
+  <table style="width: 100%">
+    <tbody>
+      <tr>
+        <td>
+	{{ partial "logo.html" . }}
+        </td>
+        <td>
+        {{ partial "subtitle.html" . }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  {{- end }}
+</div>{{ if eq .Kind "home" }}<hr />{{ end }}
