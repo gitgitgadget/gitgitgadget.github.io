@@ -1,3 +1,6 @@
+---
+title: GitGitGadget - how to reply to emails on the Git mailing list
+---
 You most likely found this page because you contributed patches to the Git mailing list via GitGitGadget, and a mail from the Git mailing list was mirrored to your Pull Request, and now you need to answer.
 
 The easiest method (unless you are subscribed to the Git mailing list and saw the mail already) is to import the so-called "mbox" file. You can get that by following the "On the Git mailing list" link on the top of the mirrored mail and then downloading the "raw" version (you can do the same by appending `/raw` to the link).

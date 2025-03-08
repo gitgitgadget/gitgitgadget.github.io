@@ -1,49 +1,26 @@
-name: Convert Markdown to HTML
-on: pull_request
+name: Hugo
+on: [pull_request]
 
 jobs:
-  md2html: # make sure build/ci work properly
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      issues: write
     steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.ref }}
-      - run: npm ci
-      - run: npm run grunt
-      - name: check if commit & push is needed
-        id: check
-        run: |
-          git add -A \*.html &&
-          git diff-index --cached --exit-code HEAD -- ||
-          echo "need-to-commit=yes" >>$GITHUB_OUTPUT
-      - name: commit
-        if: steps.check.outputs.need-to-commit == 'yes'
-        run: |
-          git config user.name "${{github.actor}}" &&
-          git config user.email "${{github.actor}}@users.noreply.github.com" &&
-          git commit -m 'Convert Markdown to HTML' -- \*.html &&
-          git update-index --refresh &&
-          git diff-files --exit-code &&
-          git diff-index --cached --exit-code HEAD -- &&
-          git bundle create git.bundle ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.head.ref }}
-      - name: commit
-        if: steps.check.outputs.need-to-commit == 'yes' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
-        run: git push
-      - name: publish bundle
-        id: bundle
-        if: steps.check.outputs.need-to-commit == 'yes' && github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-        uses: actions/upload-artifact@v4
-        with:
-          name: bundle
-          path: git.bundle
-      - name: instructions how to fetch bundle
-        if: steps.check.outputs.need-to-commit == 'yes' && github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-        run: |
-          body='The HTML pages are out of date. Please download the `bundle` artifact from ${{ steps.bundle.outputs.artifact-url }}, extract the `git.bundle` file from it, then run `git pull /path/to/git.bundle ${{ github.event.pull_request.head.ref }}` and then push to the PR branch'
-          echo "::error::$body" >&2
-          echo "$body" >>$GITHUB_STEP_SUMMARY
-          exit 1
+    - uses: actions/checkout@v4
+    - name: configure Hugo
+      run: |
+        set -x &&
+        echo "HUGO_VERSION=$(sed -n 's/^ *hugo_version: *//p' <hugo.yml)" >>$GITHUB_ENV
+    - name: install Hugo ${{ env.HUGO_VERSION }}
+      run: |
+        set -x &&
+        curl -Lo /tmp/hugo.deb https://github.com/gohugoio/hugo/releases/download/v$HUGO_VERSION/hugo_extended_${HUGO_VERSION}_linux-amd64.deb &&
+        sudo dpkg -i /tmp/hugo.deb
+    - name: run Hugo to build the pages
+      run: hugo
+    - name: build tar archive
+      run: cd public && tar czvf ../pages.tar.gz *
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: pages
+        path: pages.tar.gz

@@ -1,3 +1,6 @@
+---
+title: The architecture of GitGitGadget
+---
 # How does GitGitGadget process user comments on PRs?
 
 GitGitGadget is implemented as a GitHub App (with the very imaginative name ["GitGitGadget"](https://github.com/apps/gitgitgadget)), which means that a webhook is called on certain events, such as new PR comments on PRs (e.g. `issue_comment`).
