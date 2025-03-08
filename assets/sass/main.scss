@@ -23,37 +23,39 @@ big {
 small {
   font-size: 70%;
 }
-.tg {
-  border-collapse: collapse;
-  border-spacing: 0;
-  margin: 0px auto;
-}
-.tg td {
-  padding: 10px 5px;
-  border-style: solid;
-  border-width: 1px;
-  overflow: hidden;
-  word-break: normal;
-  border-color: black;
-}
-.tg th {
-  font-weight: bold;
-  padding: 10px 5px;
-  border-style: solid;
-  border-width: 1px;
-  overflow: hidden;
-  word-break: normal;
-  border-color: black;
-}
-.tg .tg-baqh {
-  width: 15%;
-  text-align: center;
-  vertical-align: center;
-}
-.tg .tg-0lax {
-  width: 70%;
-  text-align: left;
-  vertical-align: center;
+div.feature-matrix {
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0px auto;
+  }
+  td {
+    padding: 10px 5px;
+    border-style: solid;
+    border-width: 1px;
+    overflow: hidden;
+    word-break: normal;
+    border-color: black;
+  }
+  th {
+    font-weight: bold;
+    padding: 10px 5px;
+    border-style: solid;
+    border-width: 1px;
+    overflow: hidden;
+    word-break: normal;
+    border-color: black;
+  }
+  th,td {
+    width: 15%;
+    text-align: center;
+    vertical-align: center;
+  }
+  th:first-child,td:first-child {
+    width: 70%;
+    text-align: left;
+    vertical-align: center;
+  }
 }
 @media screen and (max-width: 767px) {
   .tg {
