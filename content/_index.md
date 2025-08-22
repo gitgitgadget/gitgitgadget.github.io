@@ -60,7 +60,7 @@ GitGitGadget works on both GitGitGadget's Git fork ([https://github.com/gitgitga
 | Comments on the PR when the series is integrated into `seen`, `next`, `master` and `maint` | ✓ | ✓
 | Adds a label to the PR when the series is integrated into `seen`, `next`, `master` and `maint` | ✓ | ✓
 | PRs can target `seen`, `next`, `master` and `maint` | ✓ | ✓
-| PRs can target any topic branch in the maintainer's fork, as well as [`git-gui/master`](https://github.com/prati0100/git-gui) | ✓ | ✗
+| PRs can target any topic branch in the maintainer's fork, as well as [`git-gui/master`](https://github.com/j6t/git-gui) | ✓ | ✗
 | Creates a direct link between the last commit of the series and the corresponding commit in the "most upstream" integration branch as a GitHub check | ✓ | ✗
 
 </div>
