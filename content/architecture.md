@@ -43,61 +43,6 @@ A secondary benefit of mirroring the `gitster/git` branches is that PRs at `gitg
 
 While the workflow that synchronizes with `gitster/git` is a scheduled workflow that is runs once per day, the workflow that synchronizes with `git/git` is triggered immediately (via `push` events, thanks to a read-only version of GitGitGadget's GitHub App being installed on the latter repository).
 
-### What do the pipelines do, exactly?
-
-The pipeline that mirrors gitster/git into gitgitgadget/git (the pipeline names cannot contain slashes, that's why the `/` was replaced by a `.`) has two tasks:
-
-1. Synchronize branch:
-   ```bash
-   case "$(Build.SourceBranch)" in
-   refs/heads/*)
-       refspec="+HEAD:$(Build.SourceBranch)"
-       ;;
-   refs/tags/*)
-       refspec="$(Build.SourceBranch)"
-       ;;
-   *)
-       echo "Cannot handle '$(Build.SourceBranch)'" >&2
-       exit 1
-       ;;
-   esac
-
-   git -c  http."https://github.com/gitgitgadget/git".extraheader="Authorization: Basic $(gitgitgadget.push.token.base64)" \
-       push https://github.com/gitgitgadget/git "$refspec"
-   ```
-2. Synchronize tags (if necessary):
-   ```bash
-   die () {
-       echo "$*" >&2
-       exit 1
-   }
-
-   for d in git gitgitgadget
-   do
-       git ls-remote --tags https://github.com/$d/git | grep -v '\^{}$' | sort >tags.$d ||
-       die "Could not enumerate tags in $d"
-   done
-
-   refspec="$(comm -23 tags.git tags.gitgitgadget | tr '\t' :)" ||
-   die "Could figure out missing tags"
-
-   if test -z "$refspec"
-   then
-       echo "##vso[task.complete result=Skipped]No tags to synchronize!"
-   else
-       git -c  http."https://github.com/gitgitgadget/git".extraheader="Authorization: Basic $(gitgitgadget.push.token.base64)" \
-           push https://github.com/gitgitgadget/git $refspec
-   fi
-   ```
-
-That second task is necessary because there is currently no way to trigger non-YAML Azure Pipelines from tag updates. Of course this means that new tags are only synchronized together with branch updates, but in practice that's okay because the Git maintainer always pushes out the tags with corresponding branches.
-
-This task mirrors tags from the git/git repository, even if the pipeline purports to mirror `gitster/git` to `gitgitgadget/git`; This is a deliberate decision, to make sure that we only mirror the "official tags" from the authoritative repository.
-
-The two pipelines are identical except for these aspects:
-- The `gitster/git` repository contains substantially more branches. The only `git/git` branch that is missing from `gitster/git` is `todo`, which [we might parse at some stage to provided concise excerpts from the "What's cooking" mails](https://github.com/gitgitgadget/gitgitgadget/issues/152).
-- For technical reasons, the `git/git` pipeline does not need to poll.
-
 ### Git GUI's branches
 
 As GitGitGadget can also be used to contribute Git GUI patches and patch series, there is also the [Synchronize git-gui.git (branches only) to GitGitGadget](https://dev.azure.com/gitgitgadget/git/_build?definitionId=10) pipeline. It mirrors the branches of Pratyush Yadav's repository (i.e. the former Git GUI maintainer's authoritative repository) into the `git-gui/*` namespace on `gitgitgadget/git`.
