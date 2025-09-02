@@ -45,4 +45,4 @@ While the workflow that synchronizes with `gitster/git` is a scheduled workflow 
 
 ### Git GUI's branches
 
-As GitGitGadget can also be used to contribute Git GUI patches and patch series, there is also the [Synchronize git-gui.git (branches only) to GitGitGadget](https://dev.azure.com/gitgitgadget/git/_build?definitionId=10) pipeline. It mirrors the branches of Pratyush Yadav's repository (i.e. the former Git GUI maintainer's authoritative repository) into the `git-gui/*` namespace on `gitgitgadget/git`.
+As GitGitGadget can also be used to contribute Git GUI patches and patch series, there is [the `sync-git-gui` GitHub workflow](https://github.com/gitgitgadget-workflows/gitgitgadget-workflows/actions/workflows/sync-git-gui.yml). It mirrors the branches of Johannes Sixt's repository (i.e. the current Git GUI maintainer's authoritative repository) into the `git-gui/*` namespace on `gitgitgadget/git`.
