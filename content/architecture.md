@@ -1,6 +1,98 @@
 ---
 title: The architecture of GitGitGadget
 ---
+
+The essence of GitGitGadget can be illustrated by this diagram
+
+```graphviz
+digraph GitGitGadgetFlow {
+  rankdir="TB";
+  splines=true;
+  overlap=false;
+  fontsize=10;
+  sep="+4.5";
+
+  node [fontname="Arial", shape=box, style="filled,rounded"];
+  edge [fontname="Arial", fontsize=7];
+
+  // Node styles
+  user [label="user (Git contributor)", fillcolor="#7777ff"];
+  pr_repo [label="pr-repo", fillcolor="#eaa666", penwidth=2];
+
+  GitGitGadget [label="GitGitGadget", fillcolor="#ffffff"];
+
+  user -> pr_repo [label=" opens PR"];
+
+  pr_repo -> GitGitGadget [label="slash commands"];
+
+  GitGitGadget -> mailing_list [label="sends patch series"];
+}
+```
+
+Of course, when adding a couple of details, it gets quite a bit more complicated. For example, GitGitGadget needs write permissions on the `pr-repo`, to push the tagged patch series, and to store its state in Git notes. Most upstream projects do not like that, and therefore GitGitGadget works on a `pr-repo` which is a fork of an `upstream-repo`. However, a _read-only_ variant of GitGitGadget's GitHub App can be installed on the `upstream-repo`, in which case GitGitGadget _does_ handle PRs in the `upstream-repo` but the state and the tagged patch series still live in `pr-repo`.
+
+For testing purposes, there can also be `test-repo`, another fork of `upstream-repo` (but only the owner of the `test-repo` is allowed to use GitGitGadget there).
+
+GitGitGadget also needs access to the mailing list in the form of a [public-inbox](https://public-inbox.org/README.html) repository, to be able to mirror replies back to the PRs.
+
+
+```graphviz
+digraph GitGitGadgetFlow {
+  layout="neato";
+  rankdir="TB";
+  splines=true;
+  overlap=false;
+  fontsize=10;
+  sep="+4.5";
+
+  node [fontname="Arial", shape=box, style="filled,rounded"];
+  edge [fontname="Arial", fontsize=7];
+
+  // Node styles
+  user [label="user (Git contributor)", fillcolor="#7777ff"];
+  upstream_repo [label="upstream-repo", fillcolor="#eaa666", penwidth=2];
+  pr_repo [label="pr-repo", fillcolor="#eaa666", penwidth=2];
+  test_repo [label="test-repo", fillcolor="#eaa666", penwidth=2];
+
+  GitGitGadget [label="GitGitGadget", fillcolor="#ffffff"];
+  gitgitgadget_github_app_repo [label="gitgitgadget-github-app-repo", fillcolor="#fb7", penwidth=2];
+  azure_function [label="azure-function", fillcolor="#ffffff"];
+  gitgitgadget_workflows_repo [label="gitgitgadget-workflows-repo", fillcolor="#fb7", penwidth=2];
+  gitgitgadget_repo [label="gitgitgadget-repo", fillcolor="#fb7", penwidth=2];
+  mailing_list [label="mailing-list"];
+  mailing_list_repo [label="mailing-list-repo", fillcolor="#fb7", penwidth=2];
+  mailing_list_repo_mirror [label="mailing-list-repo-mirror", fillcolor="#fb7", penwidth=2];
+
+  user -> pr_repo;
+  user -> upstream_repo;
+  user -> test_repo [taillabel=" opens PR"];
+
+  upstream_repo -> pr_repo [label="syncs branches"];
+  pr_repo -> GitGitGadget [label="slash commands"];
+  upstream_repo -> GitGitGadget [label="slash commands\n(App)"];
+  test_repo -> GitGitGadget [label="slash commands\n(owner only)"];
+
+  GitGitGadget -> mailing_list [label="sends patch series"];
+  GitGitGadget -> gitgitgadget_workflows_repo [label="runs in"];
+  gitgitgadget_workflows_repo -> gitgitgadget_repo [label="uses Actions"];
+
+  pr_repo -> azure_function;
+  upstream_repo -> azure_function [label="webhook"];
+  test_repo -> azure_function [headlabel="webhook"];
+  mailing_list_repo_mirror -> azure_function [headlabel="\nwebhook"];
+
+  gitgitgadget_github_app_repo -> azure_function [label="deploys to"];
+  azure_function -> GitGitGadget [label="triggers"];
+
+  mailing_list -> mailing_list_repo [label="public-inbox"];
+  mailing_list_repo -> mailing_list_repo_mirror [label="syncs to"];
+
+  mailing_list_repo_mirror -> pr_repo [label="mirrors\nreplies"];
+  mailing_list_repo_mirror -> upstream_repo;
+  mailing_list_repo_mirror -> test_repo;
+}
+```
+
 # How does GitGitGadget process user comments on PRs?
 
 GitGitGadget is implemented as a GitHub App (with the very imaginative name ["GitGitGadget"](https://github.com/apps/gitgitgadget)), which means that a webhook is called on certain events, such as new PR comments on PRs (e.g. `issue_comment`).
