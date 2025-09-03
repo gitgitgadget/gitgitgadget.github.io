@@ -5,7 +5,7 @@ title: The architecture of GitGitGadget
 
 GitGitGadget is implemented as a GitHub App (with the very imaginative name ["GitGitGadget"](https://github.com/apps/gitgitgadget)), which means that a webhook is called on certain events, such as new PR comments on PRs (e.g. `issue_comment`).
 
-In GitGitGadget's case, this webhook is implemented as an Azure Function: https://github.com/gitgitgadget/gitgitgadget/tree/master/azure-function
+In GitGitGadget's case, this webhook is implemented as [an Azure Function](https://github.com/gitgitgadget/gitgitgadget-github-app).
 
 Apart from validating that the payload really originated from GitHub, the Azure Function performs a rudimentary check whether the comment (if it was triggered by a comment) contains a command that GitGitGadget should act on, and depending on that check triggers the Azure Pipeline [GitGitGadget PR Handler](https://dev.azure.com/gitgitgadget/git/_build?definitionId=3).
 
