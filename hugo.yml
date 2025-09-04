@@ -9,6 +9,10 @@ markup:
   goldmark:
     renderer:
       unsafe: true
+mediaTypes:
+  application/json:
+    suffixes:
+    - json
 module:
   mounts:
   - source: content
