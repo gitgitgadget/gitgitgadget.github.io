@@ -1,4 +1,4 @@
-<pre class="graphviz">
+<pre class="graphviz"{{ if (and (isset "engine" .Attributes) (ne "" .Attributes.engine)) }} engine="{{ .Attributes.engine }}"{{ end }}>
   {{- .Inner | htmlEscape | safeHTML -}}
 </pre>
 {{- .Page.Store.Set "hasGraphviz" true }}
