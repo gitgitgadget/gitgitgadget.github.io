@@ -50,8 +50,8 @@ digraph GitGitGadgetFlow {
 
   // Node styles
   user [label="user (Git contributor)", fillcolor="#7777ff"];
-  upstream_repo [label="upstream-repo", fillcolor="#eaa666", penwidth=2];
   pr_repo [label="pr-repo", fillcolor="#eaa666", penwidth=2];
+  upstream_repo [label="upstream-repo", fillcolor="#eaa666", penwidth=2];
   test_repo [label="test-repo", fillcolor="#eaa666", penwidth=2];
 
   GitGitGadget [label="GitGitGadget", fillcolor="#ffffff"];
@@ -63,33 +63,33 @@ digraph GitGitGadgetFlow {
   mailing_list_repo [label="mailing-list-repo", fillcolor="#fb7", penwidth=2];
   mailing_list_repo_mirror [label="mailing-list-repo-mirror", fillcolor="#fb7", penwidth=2];
 
-  user -> pr_repo;
-  user -> upstream_repo;
+  user -> pr_repo:nw [taillabel="     opens PR"];
+  user -> upstream_repo [taillabel="opens PR"];
   user -> test_repo [taillabel=" opens PR"];
 
-  upstream_repo -> pr_repo [label="syncs branches"];
-  pr_repo -> GitGitGadget [label="slash commands"];
+  upstream_repo -> pr_repo:se [label="syncs\nbranches"];
+  pr_repo -> GitGitGadget [headlabel="slash commands"];
   upstream_repo -> GitGitGadget [label="slash commands\n(App)"];
-  test_repo -> GitGitGadget [label="slash commands\n(owner only)"];
+  test_repo -> GitGitGadget [label="slash commands  \n(owner only)"];
 
-  GitGitGadget -> mailing_list [label="sends patch series"];
+  GitGitGadget -> mailing_list [label="sends patch series  "];
   GitGitGadget -> gitgitgadget_workflows_repo [label="runs in"];
-  gitgitgadget_workflows_repo -> gitgitgadget_repo [label="uses Actions"];
+  gitgitgadget_workflows_repo -> gitgitgadget_repo [label="uses Actions  "];
 
-  pr_repo -> azure_function;
-  upstream_repo -> azure_function [label="webhook"];
-  test_repo -> azure_function [headlabel="webhook"];
-  mailing_list_repo_mirror -> azure_function [headlabel="\nwebhook"];
+  pr_repo -> azure_function [label="webhook  "];
+  upstream_repo -> azure_function [label="webhook  "];
+  test_repo -> azure_function [label="webhook"];
+  mailing_list_repo_mirror:ne -> azure_function:w [taillabel="       webhook"];
 
-  gitgitgadget_github_app_repo -> azure_function [label="deploys to"];
-  azure_function -> GitGitGadget [label="triggers"];
+  gitgitgadget_github_app_repo -> azure_function [label="deploys to  "];
+  azure_function -> GitGitGadget [headlabel="triggers            "];
 
-  mailing_list -> mailing_list_repo [label="public-inbox"];
-  mailing_list_repo -> mailing_list_repo_mirror [label="syncs to"];
+  mailing_list:sw -> mailing_list_repo:se [label="public-inbox"];
+  mailing_list_repo -> mailing_list_repo_mirror [label="syncs to  "];
 
-  mailing_list_repo_mirror -> pr_repo [label="mirrors\nreplies"];
-  mailing_list_repo_mirror -> upstream_repo;
-  mailing_list_repo_mirror -> test_repo;
+  mailing_list_repo_mirror:se -> pr_repo [label="mirrors\nreplies"];
+  mailing_list_repo_mirror -> upstream_repo  [label="mirrors replies       "];
+  mailing_list_repo_mirror:n -> test_repo  [label="mirrors replies"];
 }
 ```
 
