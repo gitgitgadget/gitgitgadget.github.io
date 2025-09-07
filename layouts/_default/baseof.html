@@ -22,6 +22,9 @@
         if (x.style.display === 'none') return
         const options = {
           format: "svg",
+          graphAttributes: {
+            bgcolor: "transparent",
+          },
         }
         const svg = vizInstance.renderString(x.innerText, options)
         const img = document.createElement('img')
