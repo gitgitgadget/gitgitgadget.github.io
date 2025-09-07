@@ -31,8 +31,10 @@ import Viz from "../static/js/viz-global.js"
         },
         engine,
       })
+      const alt = pre.getAttribute("alt")
+      const altAttr = !alt ? '' : ` alt='${alt.replaceAll("&", "&amp;").replaceAll("'", "&#39;")}'`
       const dataURL = `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`
-      pre.replaceWith(`<img src="${dataURL}" />`)
+      pre.replaceWith(`<img${altAttr} src="${dataURL}" />`)
     }
     console.log(`Rewriting ${path}`)
     writeFileSync(`${path}`, html.toString())
