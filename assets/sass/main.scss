@@ -78,6 +78,11 @@ div.feature-matrix {
     vertical-align: center;
   }
 }
+@media screen and (max-width: 450px) {
+  big {
+    font-size: 300%;
+  }
+}
 @media screen and (max-width: 767px) {
   body {
     margin-right: 3%;
