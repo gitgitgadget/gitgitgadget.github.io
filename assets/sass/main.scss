@@ -79,6 +79,10 @@ div.feature-matrix {
   }
 }
 @media screen and (max-width: 767px) {
+  body {
+    margin-right: 3%;
+    margin-left: 3%;
+  }
   .tg {
     width: auto !important;
   }
