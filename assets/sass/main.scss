@@ -14,13 +14,13 @@ body {
   padding-bottom: .1em;
   border-radius: 2em;
 }
+img {
+  max-width: 100%;
+  height: auto;
+}
 .banner {
   text-align: center;
   font-weight: bold;
-  img {
-    max-width: 100%;
-    height: auto;
-  }
 }
 big {
   font-size: 400%;
