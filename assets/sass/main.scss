@@ -27,6 +27,22 @@ big {
 small {
   font-size: 70%;
 }
+pre {
+  background-color: rgb(247, 243, 239);
+  border: 1px solid #c5bbb0;
+  border-radius: 0.5em;
+  padding: 1em;
+  overflow-x: auto;
+}
+code {
+  background-color: rgb(247, 243, 239);
+  padding: 0.1em 0.3em;
+  border-radius: 0.25em;
+}
+pre code {
+  background-color: transparent;
+  padding: 0;
+}
 div.feature-matrix {
   table {
     border-collapse: collapse;
