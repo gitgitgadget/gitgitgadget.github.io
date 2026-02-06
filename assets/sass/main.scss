@@ -16,8 +16,9 @@ body {
 .banner {
   text-align: center;
   font-weight: bold;
-  td img {
-    height: 150px;
+  img {
+    max-width: 100%;
+    height: auto;
   }
 }
 big {
