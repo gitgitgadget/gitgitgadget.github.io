@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>{{ .Title }}</title>
+    <link rel="icon" href="{{ relURL "favicon.ico" }}">
     {{- $style := resources.Get "sass/main.scss" | resources.ExecuteAsTemplate "main.scss" . | css.Sass }}
     <link rel="stylesheet" href="{{ $style.RelPermalink }}">
   </head>
