@@ -4,6 +4,7 @@ body {
   background-image: linear-gradient(#d7cdc0ff, #fdf7f6ff);
   margin-right: 10%;
   margin-left: 10%;
+  overflow-wrap: break-word;
 }
 .block {
   background-color: rgb(247, 243, 239);
@@ -13,18 +14,35 @@ body {
   padding-bottom: .1em;
   border-radius: 2em;
 }
+img {
+  max-width: 100%;
+  height: auto;
+}
 .banner {
   text-align: center;
   font-weight: bold;
-  td img {
-    height: 150px;
-  }
 }
 big {
   font-size: 400%;
 }
 small {
   font-size: 70%;
+}
+pre {
+  background-color: rgb(247, 243, 239);
+  border: 1px solid #c5bbb0;
+  border-radius: 0.5em;
+  padding: 1em;
+  overflow-x: auto;
+}
+code {
+  background-color: rgb(247, 243, 239);
+  padding: 0.1em 0.3em;
+  border-radius: 0.25em;
+}
+pre code {
+  background-color: transparent;
+  padding: 0;
 }
 div.feature-matrix {
   table {
@@ -60,7 +78,16 @@ div.feature-matrix {
     vertical-align: center;
   }
 }
+@media screen and (max-width: 450px) {
+  big {
+    font-size: 300%;
+  }
+}
 @media screen and (max-width: 767px) {
+  body {
+    margin-right: 3%;
+    margin-left: 3%;
+  }
   .tg {
     width: auto !important;
   }
