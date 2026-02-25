@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ .Title }}</title>
+    {{- $canonical := .Permalink | replaceRE "\\.html$" "" -}}
+    <link rel="canonical" href="{{ $canonical }}">
     <link rel="icon" href="{{ relURL "favicon.ico" }}">
     {{- $style := resources.Get "sass/main.scss" | resources.ExecuteAsTemplate "main.scss" . | css.Sass }}
     <link rel="stylesheet" href="{{ $style.RelPermalink }}">
