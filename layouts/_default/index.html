@@ -1,3 +1,4 @@
 {{ define "main" }}
 {{ .Content | replaceRE "(<h2 id=\"([^\"]+)\".+)(</h[1-9]+>)" `${1} <a href="#${2}">#</a> ${3}` | safeHTML }}
+{{ partial "footer.html" . }}
 {{ end }}

@@ -78,6 +78,29 @@ div.feature-matrix {
     vertical-align: center;
   }
 }
+footer nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em 1em;
+  justify-content: center;
+  text-align: center;
+}
+footer nav ul li a {
+  text-decoration: none;
+}
+.footer-favicon {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+.footer-home-link {
+  display: block;
+  width: 24px;
+  margin: 0.75em auto 0;
+}
 @media screen and (max-width: 450px) {
   big {
     font-size: 300%;
