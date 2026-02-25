@@ -1,0 +1,9 @@
+{{ define "main" }}
+<div class="not-found">
+  <img class="not-found-logo" src="{{ relURL "images/gitgitgadget-logo.png" }}" alt="GitGitGadget logo" width="200">
+  <h1>404 Not Found</h1>
+  <p>The page you are looking for doesn't exist</p>
+  <p><a href="{{ relURL "/" }}">Return home</a></p>
+</div>
+{{ partial "footer.html" . }}
+{{ end }}

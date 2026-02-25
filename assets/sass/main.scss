@@ -123,3 +123,36 @@ footer nav ul li a {
     margin: auto 0px;
   }
 }
+.not-found {
+  text-align: center;
+  margin: 3rem auto;
+}
+
+.not-found-logo {
+  width: 200px;
+  margin: 0 auto 1.5rem;
+  display: block;
+}
+
+.not-found h1 {
+  margin: 0 0 1rem;
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.not-found p {
+  margin: 0 0 1rem;
+}
+
+body.page-404 {
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body.page-404 .not-found {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
