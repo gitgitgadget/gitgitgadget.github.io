@@ -25,6 +25,9 @@ So you cloned [https://github.com/git/git](https://github.com/git/git) and imple
   CC: Revi Ewer <revi.ewer@some.domain>, Ill Takalook <ill.takalook@other.domain>
   ```
 
+- **Important:** Do not write `CC:` trailers in your commit message. GitGitGadget does not read them there. Put `CC:` lines in the Pull Request description instead.
+- The Pull Request description appears below the `---` line in the emailed patch. This area is for supplementary information (e.g. a changelog between iterations) that is not part of the permanent commit history. Avoid duplicating your commit message here.
+
 You will also want to read [Git's contribution guidelines](https://git-scm.com/docs/SubmittingPatches) to make sure that your contributions are in the expected form, as well as the project's [coding guidelines](https://github.com/git/git/blob/master/Documentation/CodingGuidelines). You might also want to read the [gitworkflows](https://git-scm.com/docs/gitworkflows) manual page to understand how your contributions will be integrated in Git's repository, as well as [this note from Git's maintainer](https://github.com/git/git/blob/todo/MaintNotes).
 
 The first time you use GitGitGadget, you need to be added to the list of users with permission to use GitGitGadget (this is a <i>very</i> simple anti-spam measure). Using <a src="https://web.libera.chat/#git-devel">IRC</a> or <a src="https://github.com/gitgitgadget/git/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Aopen+%22%2Fallow%22">PRs</a> you can find a user already on this list and request them to add you to the list. To do so, they simply have to add a comment to that Pull Request that says <code>/allow</name></code>.
