@@ -6,13 +6,20 @@
     <title>{{ .Title }}</title>
     {{- $canonical := .Permalink | replaceRE "\\.html$" "" -}}
     <link rel="canonical" href="{{ $canonical }}">
-    <link rel="icon" href="{{ relURL "favicon.ico" }}">
+    {{- if eq .Kind "404" }}
+    <script>
+      document.write('<base href="{{ .Site.Home.Permalink }}">');
+    </script>
+    {{- end }}
     {{- $style := resources.Get "sass/main.scss" | resources.ExecuteAsTemplate "main.scss" . | css.Sass }}
+    <link rel="icon" href="{{ relURL "favicon.ico" }}">
     <link rel="stylesheet" href="{{ $style.RelPermalink }}">
     {{- partial "breadcrumbs.html" . -}}
   </head>
-  <body>
+  <body{{ if eq .Kind "404" }} class="page-404"{{ end }}>
+    {{- if ne .Kind "404" }}
     {{ partial "banner.html" . -}}
+    {{- end }}
 
     {{ block "main" . }}
     {{ .Content }}
